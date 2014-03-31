@@ -1,13 +1,17 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
+from decimal import Decimal
 
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.db import models
+from django.db import transaction
 
 
 class Material(models.Model):
     code = models.CharField(max_length=100)
     description = models.TextField()
+    unit = models.CharField(max_length=20)
     threshold = models.SmallIntegerField(default=0)
 
     class Meta:
@@ -23,9 +27,10 @@ class Room(models.Model):
 
     class Meta:
         verbose_name = "Salle"
+        ordering = ('number',)
 
     def __unicode__(self):
-        return "%s %s" % (self.number, self.name)
+        return "%s —­ %s" % (self.number, self.name)
 
 
 class Storage(models.Model):
@@ -39,6 +44,9 @@ class Storage(models.Model):
     def __unicode__(self):
         return "%s (%s)" % (self.code, self.room)
 
+    def get_absolute_url(self):
+        return reverse('storage', args=[self.pk])
+
 
 class Quantity(models.Model):
     material = models.ForeignKey(Material)
@@ -48,8 +56,6 @@ class Quantity(models.Model):
 
     class Meta:
         verbose_name = "Quantité"
-
-    class Meta:
         unique_together = ("material", "storage")
 
     def __unicode__(self):
@@ -57,34 +63,36 @@ class Quantity(models.Model):
 
 
 class Person(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, null=True, blank=True)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     initials = models.CharField(max_length=5, blank=True, default='')
 
     class Meta:
         verbose_name = "Personnel"
+        ordering = ('last_name',)
 
     def __unicode__(self):
-        return "%s %s" % (self.first_name, self.last_name)
+        return "%s %s" % (self.last_name, self.first_name)
 
 
 MOVEMENT_TYPES = (
     ('init', "Approvisionnement initial"),
     ('order', "Commande"),
     ('fix', "Correction (perte, inventaire)"),
+    ('use', "Prélèvement"),
     ('borrow', "Emprunt"),
     ('back', "Retour"),
     ('transfer', "Transfert"),
 )
 class Movement(models.Model):
     author = models.ForeignKey(Person)
-    typ = models.CharField(max_length=20, choices=MOVEMENT_TYPES)
+    typ = models.CharField(max_length=20, choices=MOVEMENT_TYPES, verbose_name="Opération")
     when = models.DateTimeField()
     material = models.ForeignKey(Material)
     storage = models.ForeignKey(Storage)
     quantity = models.IntegerField()
-    comment = models.TextField(default='')
+    comment = models.TextField(default='', blank=True, verbose_name="Commentaire")
 
     class Meta:
         verbose_name = "Mouvement"
@@ -92,6 +100,15 @@ class Movement(models.Model):
     def __unicode__(self):
         return "On %s: %d of %s in %s by %s" % (
             self.when, self.quantity, self.material, self.storage, self.author)
+
+    def save(self, *args, **kwargs):
+        # Updated stored quantity when movement saved
+        with transaction.atomic():
+            super(Movement, self).save(*args, **kwargs)
+            quant, _ = Quantity.objects.get_or_create(material=self.material, storage=self.storage,
+                defaults={'quantity': 0, 'price': Decimal('0.0')})
+            quant.quantity += self.quantity
+            quant.save()
 
 
 class Provider(models.Model):
@@ -107,6 +124,7 @@ class Provider(models.Model):
 
     class Meta:
         verbose_name = "Fournisseur"
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

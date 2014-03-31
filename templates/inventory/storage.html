@@ -1,0 +1,71 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<link href="{% static "admin/css/forms.css" %}" type="text/css" rel="stylesheet">
+<script type="text/javascript" src="/admin/jsi18n/"></script>
+<script type="text/javascript" src="{% static "admin/js/jquery.js" %}"></script>
+<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+<script type="text/javascript" src="{% static "admin/js/calendar.js" %}"></script>
+<script type="text/javascript" src="{% static "admin/js/admin/DateTimeShortcuts.js" %}"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+  $("a.plus, a.minus").click(function (ev) {
+    ev.preventDefault();
+    $('td.ops').hide();
+    var $tr_line = $(this).parents('tr');
+    var is_plus = $(this).hasClass('plus');
+    $tr_line.after('<tr><td colspan="3" id="form_td"></td></tr>');
+    // Can't use load because of passing data which forces POST
+    $.get('{% url "quantity_edit" storage.pk %}', {mat: $tr_line.data('id'), op: is_plus},
+        function(data) {
+            $('#form_td').html(data);
+            DateTimeShortcuts.init();
+            if (is_plus) $("#id_quantity").before('<b>+</b> ');
+            else $("#id_quantity").before('<b>—</b> ');
+    }, 'html');
+  });
+  $("#item_list").on('click', '#cancel_btn', function () {
+    $(this).parents('tr').remove();
+    $('td.ops').show();
+  });
+  $("#item_list").on('submit', function (ev) {
+    ev.preventDefault();
+    $.post(ev.target.action, $(ev.target).serialize(), function(data, status) {
+      // Display on error, reload on success
+      if (status == 'success' && data.indexOf('/') == 0) {
+        location.reload(true);
+      } else {
+        // Redisplay form with errors
+        $('#form_td').html(data);
+        DateTimeShortcuts.init();
+      }
+    });
+  });
+});
+var django = django || {};
+django.jQuery = $;
+</script>
+{% block extrastyle %}
+<style>
+  textarea#id_comment { height: 3.3em;}
+  input#id_quantity { width: 4em;}
+</style>
+{% endblock %}
+{% endblock %}
+
+{% block content %}
+<h2>{{ storage.room }}</h2>
+
+<div><b>{{ storage.code }}</b>
+     {% if other_storages %}[ {% for sto in other_storages %}<a href="{% url 'storage' sto.pk %}">{{ sto.code }}</a> {% endfor %}]{% endif %}
+</div>
+
+<table id="item_list">
+{% for quant in quant_items %}
+   <tr data-id="{{ quant.material_id }}"><td>&bullet; {{ quant.material }}</td><td>{{ quant.quantity }} {{ quant.unit }}</td>
+       <td class="ops"><a href="#" class="plus">+</a> / <a href="#" class="minus">&mdash;</a></td></tr>
+{% endfor %}
+</table>
+{% endblock %}

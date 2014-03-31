@@ -12,9 +12,16 @@ class StorageInline(admin.TabularInline):
 class RoomAdmin(admin.ModelAdmin):
     inlines = [StorageInline]
 
+class QuantityInline(admin.TabularInline):
+    model = Quantity
+
+class StorageAdmin(admin.ModelAdmin):
+    inlines = [QuantityInline]
+
 
 admin.site.register(Material)
-admin.site.register(Room)
+admin.site.register(Room, RoomAdmin)
+admin.site.register(Storage, StorageAdmin)
 admin.site.register(Person)
 admin.site.register(Movement)
 admin.site.register(Provider)
