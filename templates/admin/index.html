@@ -87,8 +87,8 @@ $(document).ready(function() {
 {% endfor %}
 </ul>
 
-<h3 class="expandable"><img src="{{ STATIC_URL }}img/tri-closed-white.png"> Salles et armoires</h3>
-<div>
+<h3>Salles et armoires</h3>
+<div style="margin-right: 20%">
 {% for room in rooms %}
   <div class="room">
     <h4>{{ room }}</h4>
@@ -97,8 +97,5 @@ $(document).ready(function() {
 {% endfor %}
 </div>
 
-<h3 class="expandable"><img src="{{ STATIC_URL }}img/tri-closed-white.png"> Saisir un mouvement</h3>
-<form>
-</form>
 </div>
 {% endblock %}

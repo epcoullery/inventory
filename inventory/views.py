@@ -52,7 +52,9 @@ class QuantityEditView(CreateView):
         return super(QuantityEditView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        self.material = get_object_or_404(Material, pk=request.GET.get('mat'))
+        self.material = None
+        if 'mat' in request.GET:
+            self.material = get_object_or_404(Material, pk=request.GET.get('mat'))
         return super(QuantityEditView, self).get(request, *args, **kwargs)
 
     def get_initial(self):
@@ -61,9 +63,10 @@ class QuantityEditView(CreateView):
             initial.update({
                 'storage': self.storage,
                 'op_plus': self.request.GET.get('op') == 'true',
-                'material': self.material,
                 'typ': 'use',
             })
+            if self.material:
+                initial['material'] = self.material
             if initial['op_plus']:
                 initial['typ'] = 'order'
             try:

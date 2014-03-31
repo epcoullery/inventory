@@ -64,8 +64,9 @@ django.jQuery = $;
 
 <table id="item_list">
 {% for quant in quant_items %}
-   <tr data-id="{{ quant.material_id }}"><td>&bullet; {{ quant.material }}</td><td>{{ quant.quantity }} {{ quant.unit }}</td>
+   <tr data-id="{{ quant.material_id }}"><td>&bullet; {{ quant.material }}</td><td>{{ quant.quantity }} {{ quant.material.unit }}</td>
        <td class="ops"><a href="#" class="plus">+</a> / <a href="#" class="minus">&mdash;</a></td></tr>
 {% endfor %}
+  <tr><td>&bullet; <a href="#" class="plus"><b><i>Ajout nouveau matériel</i></b></a></td></tr>
 </table>
 {% endblock %}

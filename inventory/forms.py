@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib.admin import widgets
 
-from .models import Movement
+from .models import Material, Movement
 
 
 class MovementForm(forms.ModelForm):
@@ -20,8 +20,11 @@ class MovementForm(forms.ModelForm):
             self.fields['storage'].widget = forms.HiddenInput()
         if 'material' in kwargs['initial']:
             self.fields['material'].widget = forms.HiddenInput()
+        else:
+            self.fields['material'].queryset = Material.objects.order_by('description')
         self.fields['author'].label = "Qui ?"
         self.fields['when'].label = "Quand ?"
+        self.fields['material'].label = "Quoi ?"
         self.fields['when'].widget = widgets.AdminSplitDateTime()
         self.fields['quantity'].label = "Combien ?"
 

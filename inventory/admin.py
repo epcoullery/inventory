@@ -14,12 +14,17 @@ class RoomAdmin(admin.ModelAdmin):
 
 class QuantityInline(admin.TabularInline):
     model = Quantity
+    extra = 0
 
 class StorageAdmin(admin.ModelAdmin):
     inlines = [QuantityInline]
 
+class MaterialAdmin(admin.ModelAdmin):
+    search_fields = ('code', 'description')
+    ordering = ('description',)
+    inlines = [QuantityInline]
 
-admin.site.register(Material)
+admin.site.register(Material, MaterialAdmin)
 admin.site.register(Room, RoomAdmin)
 admin.site.register(Storage, StorageAdmin)
 admin.site.register(Person)
