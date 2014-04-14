@@ -11,8 +11,8 @@ from django.db import transaction
 class Material(models.Model):
     code = models.CharField(max_length=100)
     description = models.TextField()
-    unit = models.CharField(max_length=20)
-    threshold = models.SmallIntegerField(default=0)
+    unit = models.CharField("Unité", max_length=20)
+    threshold = models.SmallIntegerField("Seuil de commande", default=0)
 
     class Meta:
         verbose_name = "Matériel"

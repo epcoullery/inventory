@@ -69,4 +69,6 @@ django.jQuery = $;
 {% endfor %}
   <tr><td>&bullet; <a href="#" class="plus"><b><i>Ajout nouveau matériel</i></b></a></td></tr>
 </table>
+<hr style="margin-top: 1em;">
+<p><a href="{% url 'storage_export' storage.pk %}">Exporter au format xlsx</a></p>
 {% endblock %}

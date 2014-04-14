@@ -1,5 +1,9 @@
 {% extends "admin/base.html" %}
-{% load i18n %}
+{% load i18n static %}
+
+{% block extrahead %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+{% endblock %}
 
 {% block title %}{{ title }} | {% trans 'Gestion de matériel' %}{% endblock %}
 

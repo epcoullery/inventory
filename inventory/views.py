@@ -1,7 +1,9 @@
 # -*- encoding: utf-8 -*-
 from __future__ import unicode_literals
+from datetime import date
 
 from django.contrib import admin, messages
+from django.db import connection
 from django.db.models import F, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -22,10 +24,16 @@ def home(request):
     missing_mat = Material.objects.annotate(total_quant=Sum('quantity__quantity')
                                  ).filter(total_quant__lt=F('threshold')
                                  ).exclude(pk__in=cur_orders.values_list('pk', flat=True))
+
+    cursor = connection.cursor()
+    cursor.execute("SELECT Sum(price*quantity) FROM inventory_quantity")
+    total = cursor.fetchone()[0]
+
     context = {
         'missing_mat': missing_mat,
         'cur_orders': cur_orders,
-        'rooms': Room.objects.all().prefetch_related('storage_set')
+        'rooms': Room.objects.all().prefetch_related('storage_set'),
+        'total': total,
     }
     return admin.site.index(request, extra_context=context)
 
@@ -33,6 +41,7 @@ def home(request):
 class StorageView(DetailView):
     model = Storage
     template_name = 'inventory/storage.html'
+    render_format = 'html'
 
     def get_context_data(self, **kwargs):
         context = super(StorageView, self).get_context_data(**kwargs)
@@ -42,6 +51,36 @@ class StorageView(DetailView):
                 select={'lower_name':'lower(inventory_material.description)'}).order_by('lower_name'),
         })
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        if self.render_format == 'xlsx':
+            from openpyxl import Workbook
+            from openpyxl.writer.excel import save_virtual_workbook
+            wb = Workbook()
+            ws = wb.get_active_sheet()
+            ws.title = 'Inventaire'
+            # Headers
+            headers = ['Matériel (salle %s, armoire %s)' % (self.object.room.number, self.object.code), 'Quantité', 'Unité']
+            for col_idx, header in enumerate(headers):
+                ws.cell(row=0, column=col_idx).value = header
+                ws.cell(row=0, column=col_idx).style.font.bold = True
+            # Data
+            for row_idx, tr in enumerate(context['quant_items'], start=1):
+                ws.cell(row=row_idx, column=0).value = unicode(tr.material)
+                ws.cell(row=row_idx, column=1).value = tr.quantity
+                ws.cell(row=row_idx, column=2).value = tr.material.unit
+
+            ws.cell(row=row_idx+2, column=0).value = "État au %s" % date.today()
+            ws.cell(row=row_idx+2, column=0).style.font.italic = True
+            ws.column_dimensions['A'].width = 60
+
+            response = HttpResponse(save_virtual_workbook(wb), content_type='application/ms-excel')
+            response['Content-Disposition'] = 'attachment; filename=exportation_%s_%s.xlsx' % (
+                self.object.code.replace(' ', '_'), date.strftime(date.today(), '%Y-%m-%d'))
+            return response
+        else:
+            return super(StorageView, self).render_to_response(context, **response_kwargs)
+
 
 class QuantityEditView(CreateView):
     model = Movement
