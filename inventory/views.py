@@ -7,7 +7,7 @@ from django.db import connection
 from django.db.models import F, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import DetailView, CreateView
+from django.views.generic import DetailView, CreateView, ListView
 
 from .forms import MovementForm
 from .models import Material, Order, Quantity, Room, Storage, Movement, Person
@@ -34,6 +34,7 @@ def home(request):
         'cur_orders': cur_orders,
         'rooms': Room.objects.all().prefetch_related('storage_set'),
         'total': total,
+        'mov_years': Movement.objects.dates('when', 'year'),
     }
     return admin.site.index(request, extra_context=context)
 
@@ -128,3 +129,35 @@ class QuantityEditView(CreateView):
         else:
             messages.success(self.request, "Vous avez retiré du matériel avec succès")
         return HttpResponse(self.object.storage.get_absolute_url())
+
+
+class MovementExport(ListView):
+    model = Movement
+
+    def get_queryset(self):
+        return self.model.objects.filter(when__year=self.kwargs['year'])
+
+    def render_to_response(self, context, **response_kwargs):
+        from openpyxl import Workbook
+        from openpyxl.writer.excel import save_virtual_workbook
+        wb = Workbook()
+        ws = wb.get_active_sheet()
+        ws.title = 'Mouvements'
+        # Headers
+        headers = ['Qui', 'Quand', 'Quoi', 'Où', 'Combien', 'Commentaire']
+        for col_idx, header in enumerate(headers):
+            ws.cell(row=0, column=col_idx).value = header
+            ws.cell(row=0, column=col_idx).style.font.bold = True
+        # Data
+        for row_idx, tr in enumerate(self.object_list, start=1):
+            ws.cell(row=row_idx, column=0).value = unicode(tr.author)
+            ws.cell(row=row_idx, column=1).value = tr.when
+            ws.cell(row=row_idx, column=2).value = unicode(tr.material)
+            ws.cell(row=row_idx, column=3).value = unicode(tr.storage)
+            ws.cell(row=row_idx, column=4).value = tr.quantity
+            ws.cell(row=row_idx, column=5).value = tr.comment
+
+        response = HttpResponse(save_virtual_workbook(wb), content_type='application/ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=mouvements_%s.xlsx' % (
+            self.kwargs['year'])
+        return response

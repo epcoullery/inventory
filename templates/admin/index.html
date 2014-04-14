@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static %}
+{% load i18n l10n static %}
 
 {% block extrahead %}
 {{ block.super }}
@@ -97,6 +97,7 @@ $(document).ready(function() {
 {% endfor %}
 </div>
 
-<p style="clear: left;">Somme totale d'inventaire: {{ total|floatformat:2 }}</p>
+<p style="clear: left;">Somme totale d'inventaire  : {{ total|floatformat:2 }}</p>
+<p>Mouvements par année (exportation Excel) : {% for dt in mov_years %}<a href="{% url 'movement_export' dt.year %}">{{ dt.year|unlocalize }}</a> {% endfor %}
 </div>
 {% endblock %}
