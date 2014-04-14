@@ -3,7 +3,11 @@
 
 {% block extrahead %}
 {{ block.super }}
+<script type="text/javascript" src="/admin/jsi18n/"></script>
 <script type="text/javascript" src="{% static "admin/js/jquery.js" %}"></script>
+<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+<script type="text/javascript" src="{% static "admin/js/calendar.js" %}"></script>
+<script type="text/javascript" src="{% static "admin/js/admin/DateTimeShortcuts.js" %}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
   $('h3.expandable').click(function() {
@@ -16,7 +20,38 @@ $(document).ready(function() {
         $(this).next().hide()
     }
   });
+
+  $("a.order").click(function (ev) {
+    ev.preventDefault();
+    $('td.order').hide();
+    var $tr_line = $(this).parents('tr');
+    $tr_line.after('<tr><td colspan="3" id="form_td"></td></tr>');
+    $.get('{% url "material_order" %}', {mat: $tr_line.data('id')},
+        function(data) {
+            $('#form_td').html(data);
+            DateTimeShortcuts.init();
+    }, 'html');
+  });
+  $("#item_list").on('click', '#cancel_btn', function () {
+    $(this).parents('tr').remove();
+    $('td.order').show();
+  });
+  $("#item_list").on('submit', function (ev) {
+    ev.preventDefault();
+    $.post(ev.target.action, $(ev.target).serialize(), function(data, status) {
+      // Display on error, reload on success
+      if (status == 'success' && data.indexOf('/') == 0) {
+        location.reload(true);
+      } else {
+        // Redisplay form with errors
+        $('#form_td').html(data);
+        DateTimeShortcuts.init();
+      }
+    });
+  });
 });
+var django = django || {};
+django.jQuery = $;
 </script>
 {% endblock %}
 
@@ -73,9 +108,10 @@ $(document).ready(function() {
 
 <div><h3 class="expandable"><img src="{{ STATIC_URL }}img/tri-closed-white.png"> Matériel à commander ({{ missing_mat|length }})</h3>
 {% for mat in missing_mat %}
-  {% if forloop.first %}<table>{% endif %}
-  <tr><td>&bullet; {{ mat }}</td>
-      <td class="number">{{ mat.total_quant }}</td><td class="number">{{ mat.threshold }}</td></tr>
+  {% if forloop.first %}<table id="item_list">{% endif %}
+  <tr data-id="{{ mat.pk|unlocalize }}"><td>&bullet; {{ mat }}</td>
+      <td class="number">{{ mat.total_quant }}</td><td class="number">{{ mat.threshold }}</td>
+      <td class="order"><i><a class="order" href="#" style="font-size: 90%;">Commander</a></i></td></tr>
   {% if forloop.last %}</table>{% endif %}
   {% empty %}<p>Pas de matériel à commander</p>
 {% endfor %}
@@ -83,7 +119,7 @@ $(document).ready(function() {
 <h3 class="expandable"><img src="{{ STATIC_URL }}img/tri-closed-white.png"> Commandes en cours ({{ cur_orders|length }})</h3>
 <ul>
 {% for order in cur_orders %}
-  <li>{{ order }}</li>
+  <li>Commande de : {{ order.material }}, le {{ order.order_date }}</li>
 {% endfor %}
 </ul>
 

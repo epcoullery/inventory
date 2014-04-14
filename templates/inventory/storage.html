@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static %}
+{% load i18n l10n static %}
 
 {% block extrahead %}
 {{ block.super }}
@@ -59,16 +59,16 @@ django.jQuery = $;
 <h2>{{ storage.room }}</h2>
 
 <div><b>{{ storage.code }}</b>
-     {% if other_storages %}[ {% for sto in other_storages %}<a href="{% url 'storage' sto.pk %}">{{ sto.code }}</a> {% endfor %}]{% endif %}
+     {% if other_storages %}[ {% for sto in other_storages %}<a href="{% url 'storage' sto.pk|unlocalize %}">{{ sto.code }}</a> {% endfor %}]{% endif %}
 </div>
 
 <table id="item_list">
 {% for quant in quant_items %}
-   <tr data-id="{{ quant.material_id }}"><td>&bullet; {{ quant.material }}</td><td>{{ quant.quantity }} {{ quant.material.unit }}</td>
+   <tr data-id="{{ quant.material_id|unlocalize }}"><td>&bullet; {{ quant.material }}</td><td>{{ quant.quantity }} {{ quant.material.unit }}</td>
        <td class="ops"><a href="#" class="plus">+</a> / <a href="#" class="minus">&mdash;</a></td></tr>
 {% endfor %}
   <tr><td>&bullet; <a href="#" class="plus"><b><i>Ajout nouveau matériel</i></b></a></td></tr>
 </table>
 <hr style="margin-top: 1em;">
-<p><a href="{% url 'storage_export' storage.pk %}">Exporter au format xlsx</a></p>
+<p><a href="{% url 'storage_export' storage.pk|unlocalize %}">Exporter au format xlsx</a></p>
 {% endblock %}

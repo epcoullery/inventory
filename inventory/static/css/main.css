@@ -3,3 +3,8 @@
   border: 1px solid gray;
   border-radius: 8px;
 }
+
+span.helptext {
+  color: #999;
+  font-style: italic;
+}

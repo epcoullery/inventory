@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django import forms
 from django.contrib.admin import widgets
 
-from .models import Material, Movement
+from .models import Material, Movement, Order
 
 
 class MovementForm(forms.ModelForm):
@@ -34,3 +34,19 @@ class MovementForm(forms.ModelForm):
             # Reverse quantity if this is a minus operation
             data['quantity'] *= -1
         return data
+
+
+class OrderForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(OrderForm, self).__init__(*args, **kwargs)
+        self.fields['order_date'].widget = widgets.AdminDateWidget()
+        if self.instance.pk:
+            self.fields['receive_date'].widget = widgets.AdminDateWidget()
+        else:
+            del self.fields['receive_date']
+        if 'material' in kwargs['initial'] or 'material' in kwargs['data']:
+            self.fields['material'].widget = forms.HiddenInput()

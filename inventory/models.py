@@ -131,12 +131,13 @@ class Provider(models.Model):
 
 
 class Order(models.Model):
-    order_date = models.DateField()
-    receive_date = models.DateField(blank=True, null=True)
-    provider = models.ForeignKey(Provider)
-    material = models.ForeignKey(Material)
-    quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=8, decimal_places=2, help_text="Prix à l'unité")
+    order_date = models.DateField("Date de commande")
+    receive_date = models.DateField("Date de réception", blank=True, null=True)
+    provider = models.ForeignKey(Provider, verbose_name="Fournisseur")
+    material = models.ForeignKey(Material, verbose_name="Matériel")
+    quantity = models.PositiveIntegerField("Quantité")
+    price = models.DecimalField("Prix", max_digits=8, decimal_places=2,
+        blank=True, null=True, help_text="Prix à l'unité")
 
     class Meta:
         verbose_name = "Commande"

@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView, CreateView, ListView
 
-from .forms import MovementForm
+from .forms import MovementForm, OrderForm
 from .models import Material, Order, Quantity, Room, Storage, Movement, Person
 
 
@@ -23,7 +23,7 @@ def home(request):
     cur_orders = Order.objects.filter(receive_date__isnull=True)
     missing_mat = Material.objects.annotate(total_quant=Sum('quantity__quantity')
                                  ).filter(total_quant__lt=F('threshold')
-                                 ).exclude(pk__in=cur_orders.values_list('pk', flat=True))
+                                 ).exclude(pk__in=cur_orders.values_list('material_id', flat=True))
 
     cursor = connection.cursor()
     cursor.execute("SELECT Sum(price*quantity) FROM inventory_quantity")
@@ -129,6 +129,28 @@ class QuantityEditView(CreateView):
         else:
             messages.success(self.request, "Vous avez retiré du matériel avec succès")
         return HttpResponse(self.object.storage.get_absolute_url())
+
+
+class MaterialOrder(CreateView):
+    model = Order
+    form_class = OrderForm
+    success_url = '/'
+
+    def get(self, request, *args, **kwargs):
+        self.material = None
+        if 'mat' in request.GET:
+            self.material = get_object_or_404(Material, pk=request.GET.get('mat'))
+        return super(MaterialOrder, self).get(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(MaterialOrder, self).get_initial()
+        if self.request.method == 'GET' and self.material:
+            initial['material'] = self.material
+        return initial
+
+    def form_valid(self, form):
+        self.object = form.save()
+        return HttpResponse('/')
 
 
 class MovementExport(ListView):
