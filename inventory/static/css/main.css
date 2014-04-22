@@ -1,4 +1,4 @@
-#form_td form {
+#form_td form, .order_detail form {
   padding: 8px;
   border: 1px solid gray;
   border-radius: 8px;

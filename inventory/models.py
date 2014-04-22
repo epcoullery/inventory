@@ -20,6 +20,9 @@ class Material(models.Model):
     def __unicode__(self):
         return self.description
 
+    def total_quantity(self):
+        return self.quantity_set.aggregate(models.Sum('quantity'))['quantity__sum']
+
 
 class Room(models.Model):
     number = models.CharField(max_length=10)

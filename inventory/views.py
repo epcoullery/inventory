@@ -7,7 +7,7 @@ from django.db import connection
 from django.db.models import F, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import DetailView, CreateView, ListView
+from django.views.generic import DetailView, CreateView, UpdateView, ListView
 
 from .forms import MovementForm, OrderForm
 from .models import Material, Order, Quantity, Room, Storage, Movement, Person
@@ -149,7 +149,19 @@ class MaterialOrder(CreateView):
         return initial
 
     def form_valid(self, form):
-        self.object = form.save()
+        self.object = form.save(self.request)
+        return HttpResponse('/')
+
+
+class MaterialReceive(UpdateView):
+    model = Order
+    form_class = OrderForm
+
+    def get_object(self):
+        return Order.objects.get(pk=self.request.GET.get('pk'))
+
+    def form_valid(self, form):
+        self.object = form.save(self.request)
         return HttpResponse('/')
 
 

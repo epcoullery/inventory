@@ -14,10 +14,26 @@ $(document).ready(function() {
     $img = $(this).children('img');
     if ($img.attr('src') == '/static/img/tri-closed-white.png') {
         $img.attr('src', '/static/img/tri-open-white.png');
-        $(this).next().show()
+        $(this).next().show();
     } else {
         $img.attr('src', '/static/img/tri-closed-white.png');
-        $(this).next().hide()
+        $(this).next().hide();
+    }
+  });
+
+  $('div.expandable').click(function() {
+    var $img = $(this).children('img');
+    var $form_div = $(this).parent().find("div.order_detail");
+    if ($img.attr('src') == '/static/img/tri-closed-white.png') {
+        $img.attr('src', '/static/img/tri-open-white.png');
+        $.get('{% url "material_receive" %}', {pk: $(this).parent().data('pk')}, function (data) {
+            $form_div.html(data).show();
+            DateTimeShortcuts.init();
+        });
+        //$(this).find("div.order_detail").load('{% url "material_receive" %}', {pk: $(this).data('pk')}).show();
+    } else {
+        $img.attr('src', '/static/img/tri-closed-white.png');
+        $form_div.hide();
     }
   });
 
@@ -36,7 +52,7 @@ $(document).ready(function() {
     $(this).parents('tr').remove();
     $('td.order').show();
   });
-  $("#item_list").on('submit', function (ev) {
+  $("#item_list, ul.orders").on('submit', function (ev) {
     ev.preventDefault();
     $.post(ev.target.action, $(ev.target).serialize(), function(data, status) {
       // Display on error, reload on success
@@ -44,7 +60,7 @@ $(document).ready(function() {
         location.reload(true);
       } else {
         // Redisplay form with errors
-        $('#form_td').html(data);
+        $(ev.target).parent().html(data);
         DateTimeShortcuts.init();
       }
     });
@@ -57,8 +73,9 @@ django.jQuery = $;
 
 {% block extrastyle %}
 <style>
-  h3.expandable {cursor: pointer; clear: left;}
+  h3.expandable, div.expandable {cursor: pointer; clear: left;}
   h3.expandable + table, h3.expandable + ul, h3.expandable + div {display: none;}
+  ul.orders, ul.orders li {list-style-type: none;}
   div.room {float:left; background-color: #EEE; border-radius: 10px; margin: 5px; padding: 5px; min-height: 4em;}
   div.room h4 {margin: 0}
 </style>
@@ -117,9 +134,11 @@ django.jQuery = $;
 {% endfor %}
 
 <h3 class="expandable"><img src="{{ STATIC_URL }}img/tri-closed-white.png"> Commandes en cours ({{ cur_orders|length }})</h3>
-<ul>
+<ul class="orders">
 {% for order in cur_orders %}
-  <li>Commande de : {{ order.material }}, le {{ order.order_date }}</li>
+  <li data-pk="{{ order.pk }}"><div class="expandable"><img src="{{ STATIC_URL }}img/tri-closed-white.png"> Commande de : {{ order.material }}, le {{ order.order_date }}</div>
+    <div class="order_detail"></div>
+  </li>
 {% endfor %}
 </ul>
 

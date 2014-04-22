@@ -1,4 +1,4 @@
-<form method="POST" action="{% url "material_order" %}">{% csrf_token %}
+<form method="POST" action="{{ form.action }}?pk={{ form.instance.pk }}">{% csrf_token %}
   <table>{{ form.as_table }}</table>
   <input id="cancel_btn" type="button" value="Annuler">
   <input id="submit_btn" type="submit" value="Enregistrer">
