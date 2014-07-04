@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.contrib import admin
 
+from common.admin import admin_site
 from .models import *
 
 
@@ -30,10 +31,10 @@ class MaterialAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('material', 'quantity', 'order_date', 'receive_date')
 
-admin.site.register(Material, MaterialAdmin)
-admin.site.register(Room, RoomAdmin)
-admin.site.register(Storage, StorageAdmin)
-admin.site.register(Person)
-admin.site.register(Movement)
-admin.site.register(Provider)
-admin.site.register(Order, OrderAdmin)
+admin_site.register(Material, MaterialAdmin)
+admin_site.register(Room, RoomAdmin)
+admin_site.register(Storage, StorageAdmin)
+admin_site.register(Person)
+admin_site.register(Movement)
+admin_site.register(Provider)
+admin_site.register(Order, OrderAdmin)

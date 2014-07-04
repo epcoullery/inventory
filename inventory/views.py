@@ -2,13 +2,14 @@
 from __future__ import unicode_literals
 from datetime import date
 
-from django.contrib import admin, messages
+from django.contrib import messages
 from django.db import connection
 from django.db.models import F, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import DetailView, CreateView, UpdateView, ListView
 
+from common.admin import admin_site
 from .forms import MovementForm, OrderForm
 from .models import Material, Order, Quantity, Room, Storage, Movement, Person
 
@@ -17,7 +18,7 @@ def cond_redirect(request):
     if request.user.is_authenticated():
         return redirect('/')
     else:
-        return admin.site.login(request)
+        return admin_site.login(request)
 
 def home(request):
     cur_orders = Order.objects.filter(receive_date__isnull=True)
@@ -36,7 +37,7 @@ def home(request):
         'total': total,
         'mov_years': Movement.objects.dates('when', 'year'),
     }
-    return admin.site.index(request, extra_context=context)
+    return admin_site.index(request, extra_context=context)
 
 
 class StorageView(DetailView):
@@ -46,6 +47,7 @@ class StorageView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(StorageView, self).get_context_data(**kwargs)
+        context.update(admin_site.each_context())
         context.update({
             'other_storages': self.object.room.storage_set.exclude(pk=self.object.pk),
             'quant_items': self.object.quantity_set.select_related('material').extra(

@@ -1,10 +1,8 @@
 from django.conf.urls import patterns, include, url
 
-from django.contrib import admin
-
 from inventory import views
+from .admin import admin_site
 
-admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^$', views.home, name="home"),
@@ -17,5 +15,5 @@ urlpatterns = patterns('',
     url(r'^material/order/$', views.MaterialOrder.as_view(), name="material_order"),
     url(r'^material/receive/$', views.MaterialReceive.as_view(), name="material_receive"),
 
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', include(admin_site.urls)),
 )
