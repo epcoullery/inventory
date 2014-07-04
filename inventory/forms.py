@@ -10,6 +10,7 @@ from .models import Material, Movement, Order, Person, Storage
 
 
 class MovementForm(forms.ModelForm):
+    quantity = forms.IntegerField(label="Combien ?", min_value=1)
     # Tell if we are adding or substracting material
     op_plus = forms.BooleanField(widget=forms.HiddenInput, required=False)
 
@@ -29,7 +30,6 @@ class MovementForm(forms.ModelForm):
         self.fields['when'].label = "Quand ?"
         self.fields['material'].label = "Quoi ?"
         self.fields['when'].widget = widgets.AdminSplitDateTime()
-        self.fields['quantity'].label = "Combien ?"
 
     def clean(self):
         data = self.cleaned_data

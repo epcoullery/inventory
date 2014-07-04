@@ -105,6 +105,7 @@ class QuantityEditView(CreateView):
             initial.update({
                 'storage': self.storage,
                 'op_plus': self.request.GET.get('op') == 'true',
+                'quantity': 1,
                 'typ': 'use',
             })
             if self.material:
