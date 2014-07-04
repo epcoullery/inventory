@@ -8,9 +8,21 @@ from django.db import models
 from django.db import transaction
 
 
+class Domain(models.Model):
+    name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = "Domaine"
+
+    def __unicode__(self):
+        return self.name
+
+
 class Material(models.Model):
     code = models.CharField(max_length=100)
     description = models.TextField()
+    # TODO: Once material.domain is populated, delete the nullable flag
+    domain = models.ForeignKey(Domain, null=True)
     unit = models.CharField("Unité", max_length=20)
     threshold = models.SmallIntegerField("Seuil de commande", default=0)
 
