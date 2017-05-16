@@ -18,6 +18,7 @@ class QuantityInline(admin.TabularInline):
     max_num = 0
 
 class StorageAdmin(admin.ModelAdmin):
+    list_display = ('code', 'room')
     inlines = [QuantityInline]
 
 class MaterialAdmin(admin.ModelAdmin):

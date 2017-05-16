@@ -81,15 +81,15 @@ class Migration(migrations.Migration):
             name='Provider',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=100)),
-                ('address', models.CharField(max_length=250)),
-                ('npa', models.CharField(max_length=5)),
-                ('locality', models.CharField(max_length=50)),
-                ('country', models.CharField(default='Suisse', max_length=50)),
-                ('phone', models.CharField(default='', max_length=20, blank=True)),
-                ('fax', models.CharField(default='', max_length=20, blank=True)),
-                ('email', models.CharField(default='', max_length=100, blank=True)),
-                ('web', models.CharField(default='', max_length=100, blank=True)),
+                ('name', models.CharField(max_length=100, verbose_name="Nom")),
+                ('address', models.CharField(max_length=250, verbose_name="Rue")),
+                ('npa', models.CharField(max_length=5, verbose_name="NPA")),
+                ('locality', models.CharField(max_length=50, verbose_name="Ville")),
+                ('country', models.CharField(default='Suisse', max_length=50, verbose_name="Pays")),
+                ('phone', models.CharField(default='', max_length=20, blank=True, verbose_name="Téléphone")),
+                ('fax', models.CharField(default='', max_length=20, blank=True, verbose_name="Fax")),
+                ('email', models.CharField(default='', max_length=100, blank=True, verbose_name="Courriel")),
+                ('web', models.CharField(default='', max_length=100, blank=True, verbose_name="Site Web")),
             ],
             options={
                 'ordering': ('name',),
@@ -107,9 +107,9 @@ class Migration(migrations.Migration):
             name='Quantity',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('quantity', models.PositiveIntegerField()),
-                ('price', models.DecimalField(help_text="Prix \xe0 l'unit\xe9", max_digits=8, decimal_places=2)),
-                ('material', models.ForeignKey(to='inventory.Material')),
+                ('quantity', models.PositiveIntegerField(verbose_name="Quantité")),
+                ('price', models.DecimalField(help_text="Prix \xe0 l'unit\xe9", max_digits=8, decimal_places=2, verbose_name='Prix')),
+                ('material', models.ForeignKey(to='inventory.Material', verbose_name='Matériel')),
             ],
             options={
                 'verbose_name': 'Quantit\xe9',
@@ -120,8 +120,8 @@ class Migration(migrations.Migration):
             name='Room',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('number', models.CharField(max_length=10)),
-                ('name', models.CharField(max_length=100)),
+                ('number', models.CharField(max_length=10, verbose_name='Numéro')),
+                ('name', models.CharField(max_length=100, verbose_name='Nom')),
             ],
             options={
                 'ordering': ('number',),

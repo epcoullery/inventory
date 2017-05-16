@@ -35,8 +35,8 @@ class Material(models.Model):
 
 
 class Room(models.Model):
-    number = models.CharField(max_length=10)
-    name = models.CharField(max_length=100)
+    number = models.CharField("Numéro", max_length=10)
+    name = models.CharField("Nom", max_length=100)
 
     class Meta:
         verbose_name = "Salle"
@@ -48,7 +48,7 @@ class Room(models.Model):
 
 class Storage(models.Model):
     code = models.CharField(max_length=100)
-    room = models.ForeignKey(Room)
+    room = models.ForeignKey(Room, verbose_name='Salle')
     materials = models.ManyToManyField(Material, through='Quantity')
 
     class Meta:
@@ -62,10 +62,10 @@ class Storage(models.Model):
 
 
 class Quantity(models.Model):
-    material = models.ForeignKey(Material)
-    storage = models.ForeignKey(Storage)
-    quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=8, decimal_places=2, help_text="Prix à l'unité")
+    material = models.ForeignKey(Material, verbose_name="Matériel")
+    storage = models.ForeignKey(Storage, verbose_name="Armoire")
+    quantity = models.PositiveIntegerField("Quantité")
+    price = models.DecimalField("Prix", max_digits=8, decimal_places=2, help_text="Prix à l'unité")
 
     class Meta:
         verbose_name = "Quantité"
@@ -125,15 +125,15 @@ class Movement(models.Model):
 
 
 class Provider(models.Model):
-    name = models.CharField(max_length=100)
-    address = models.CharField(max_length=250)
-    npa = models.CharField(max_length=5)
-    locality = models.CharField(max_length=50)
-    country = models.CharField(max_length=50, default='Suisse')
-    phone = models.CharField(max_length=20, blank=True, default='')
-    fax = models.CharField(max_length=20, blank=True, default='')
-    email = models.CharField(max_length=100, blank=True, default='')
-    web = models.CharField(max_length=100, blank=True, default='')
+    name = models.CharField("Nom", max_length=100)
+    address = models.CharField("Rue", max_length=250)
+    npa = models.CharField("NPA", max_length=5)
+    locality = models.CharField("Ville", max_length=50)
+    country = models.CharField("Pays", max_length=50, default='Suisse')
+    phone = models.CharField("Téléphone", max_length=20, blank=True, default='')
+    fax = models.CharField("Fax", max_length=20, blank=True, default='')
+    email = models.CharField("Courriel", max_length=100, blank=True, default='')
+    web = models.CharField("Site Web", max_length=100, blank=True, default='')
 
     class Meta:
         verbose_name = "Fournisseur"
