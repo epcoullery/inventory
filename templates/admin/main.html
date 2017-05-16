@@ -4,10 +4,10 @@
 {% block extrahead %}
 {{ block.super }}
 <script type="text/javascript" src="/admin/jsi18n/"></script>
-<script type="text/javascript" src="{% static "admin/js/jquery.js" %}"></script>
-<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
-<script type="text/javascript" src="{% static "admin/js/calendar.js" %}"></script>
-<script type="text/javascript" src="{% static "admin/js/admin/DateTimeShortcuts.js" %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/calendar.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/admin/DateTimeShortcuts.js' %}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
   $('h3.expandable').click(function() {

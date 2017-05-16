@@ -5,10 +5,10 @@
 {{ block.super }}
 <link href="{% static "admin/css/forms.css" %}" type="text/css" rel="stylesheet">
 <script type="text/javascript" src="/admin/jsi18n/"></script>
-<script type="text/javascript" src="{% static "admin/js/jquery.js" %}"></script>
-<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
-<script type="text/javascript" src="{% static "admin/js/calendar.js" %}"></script>
-<script type="text/javascript" src="{% static "admin/js/admin/DateTimeShortcuts.js" %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/calendar.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/admin/DateTimeShortcuts.js' %}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
   $("a.plus, a.minus").click(function (ev) {

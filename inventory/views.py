@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
 from datetime import date
 
 from django.contrib import messages
@@ -15,7 +13,7 @@ from .models import Material, Order, Quantity, Room, Storage, Movement, Person
 
 
 def cond_redirect(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return redirect('/')
     else:
         return admin_site.login(request)
@@ -46,8 +44,8 @@ class StorageView(DetailView):
     render_format = 'html'
 
     def get_context_data(self, **kwargs):
-        context = super(StorageView, self).get_context_data(**kwargs)
-        context.update(admin_site.each_context())
+        context = super().get_context_data(**kwargs)
+        context.update(admin_site.each_context(self.request))
         context.update({
             'other_storages': self.object.room.storage_set.exclude(pk=self.object.pk),
             'quant_items': self.object.quantity_set.select_related('material').extra(
@@ -64,17 +62,17 @@ class StorageView(DetailView):
             ws.title = 'Inventaire'
             # Headers
             headers = ['Matériel (salle %s, armoire %s)' % (self.object.room.number, self.object.code), 'Quantité', 'Unité']
-            for col_idx, header in enumerate(headers):
-                ws.cell(row=0, column=col_idx).value = header
-                ws.cell(row=0, column=col_idx).style.font.bold = True
+            for col_idx, header in enumerate(headers, start=1):
+                ws.cell(row=1, column=col_idx).value = header
+                ws.cell(row=1, column=col_idx).style.font.bold = True
             # Data
-            for row_idx, tr in enumerate(context['quant_items'], start=1):
-                ws.cell(row=row_idx, column=0).value = unicode(tr.material)
-                ws.cell(row=row_idx, column=1).value = tr.quantity
-                ws.cell(row=row_idx, column=2).value = tr.material.unit
+            for row_idx, tr in enumerate(context['quant_items'], start=2):
+                ws.cell(row=row_idx, column=1).value = str(tr.material)
+                ws.cell(row=row_idx, column=2).value = tr.quantity
+                ws.cell(row=row_idx, column=3).value = tr.material.unit
 
-            ws.cell(row=row_idx+2, column=0).value = "État au %s" % date.today()
-            ws.cell(row=row_idx+2, column=0).style.font.italic = True
+            ws.cell(row=row_idx+2, column=1).value = "État au %s" % date.today()
+            ws.cell(row=row_idx+2, column=1).style.font.italic = True
             ws.column_dimensions['A'].width = 60
 
             response = HttpResponse(save_virtual_workbook(wb), content_type='application/ms-excel')
@@ -182,17 +180,17 @@ class MovementExport(ListView):
         ws.title = 'Mouvements'
         # Headers
         headers = ['Qui', 'Quand', 'Quoi', 'Où', 'Combien', 'Commentaire']
-        for col_idx, header in enumerate(headers):
-            ws.cell(row=0, column=col_idx).value = header
-            ws.cell(row=0, column=col_idx).style.font.bold = True
+        for col_idx, header in enumerate(headers, start=1):
+            ws.cell(row=1, column=col_idx).value = header
+            ws.cell(row=1, column=col_idx).style.font.bold = True
         # Data
-        for row_idx, tr in enumerate(self.object_list, start=1):
-            ws.cell(row=row_idx, column=0).value = unicode(tr.author)
-            ws.cell(row=row_idx, column=1).value = tr.when
-            ws.cell(row=row_idx, column=2).value = unicode(tr.material)
-            ws.cell(row=row_idx, column=3).value = unicode(tr.storage)
-            ws.cell(row=row_idx, column=4).value = tr.quantity
-            ws.cell(row=row_idx, column=5).value = tr.comment
+        for row_idx, tr in enumerate(self.object_list, start=2):
+            ws.cell(row=row_idx, column=1).value = str(tr.author)
+            ws.cell(row=row_idx, column=2).value = tr.when
+            ws.cell(row=row_idx, column=3).value = str(tr.material)
+            ws.cell(row=row_idx, column=4).value = str(tr.storage)
+            ws.cell(row=row_idx, column=5).value = tr.quantity
+            ws.cell(row=row_idx, column=6).value = tr.comment
 
         response = HttpResponse(save_virtual_workbook(wb), content_type='application/ms-excel')
         response['Content-Disposition'] = 'attachment; filename=mouvements_%s.xlsx' % (

@@ -1,10 +1,10 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
 from inventory import views
 from .admin import admin_site
 
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^$', views.home, name="home"),
     url(r'^admin/$', views.cond_redirect),
     url(r'^storage/(?P<pk>\d+)/$', views.StorageView.as_view(), name="storage"),
@@ -15,5 +15,5 @@ urlpatterns = patterns('',
     url(r'^material/order/$', views.MaterialOrder.as_view(), name="material_order"),
     url(r'^material/receive/$', views.MaterialReceive.as_view(), name="material_receive"),
 
-    url(r'^admin/', include(admin_site.urls)),
-)
+    url(r'^admin/', admin_site.urls),
+]

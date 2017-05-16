@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
 from decimal import Decimal
 
 from django.contrib.auth.models import User
@@ -14,7 +12,7 @@ class Domain(models.Model):
     class Meta:
         verbose_name = "Domaine"
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -29,7 +27,7 @@ class Material(models.Model):
     class Meta:
         verbose_name = "Matériel"
 
-    def __unicode__(self):
+    def __str__(self):
         return self.description
 
     def total_quantity(self):
@@ -44,7 +42,7 @@ class Room(models.Model):
         verbose_name = "Salle"
         ordering = ('number',)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s —­ %s" % (self.number, self.name)
 
 
@@ -56,7 +54,7 @@ class Storage(models.Model):
     class Meta:
         verbose_name = "Armoire"
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s (%s)" % (self.code, self.room)
 
     def get_absolute_url(self):
@@ -73,7 +71,7 @@ class Quantity(models.Model):
         verbose_name = "Quantité"
         unique_together = ("material", "storage")
 
-    def __unicode__(self):
+    def __str__(self):
         return "%d %s (stored in %s)" % (self.quantity, self.material, self.storage)
 
 
@@ -87,7 +85,7 @@ class Person(models.Model):
         verbose_name = "Personnel"
         ordering = ('last_name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s %s" % (self.last_name, self.first_name)
 
 
@@ -112,7 +110,7 @@ class Movement(models.Model):
     class Meta:
         verbose_name = "Mouvement"
 
-    def __unicode__(self):
+    def __str__(self):
         return "On %s: %d of %s in %s by %s" % (
             self.when, self.quantity, self.material, self.storage, self.author)
 
@@ -141,7 +139,7 @@ class Provider(models.Model):
         verbose_name = "Fournisseur"
         ordering = ('name',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -157,5 +155,5 @@ class Order(models.Model):
     class Meta:
         verbose_name = "Commande"
 
-    def __unicode__(self):
+    def __str__(self):
         return "On %s: %d of %s" % (self.order_date, self.quantity, self.material)

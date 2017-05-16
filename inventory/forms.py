@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
 from datetime import datetime
 
 from django import forms
@@ -19,7 +17,7 @@ class MovementForm(forms.ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(MovementForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if 'storage' in kwargs['initial']:
             self.fields['storage'].widget = forms.HiddenInput()
         if 'material' in kwargs['initial']:
@@ -45,7 +43,7 @@ class OrderForm(forms.ModelForm):
         fields = '__all__'
 
     def __init__(self, *args, **kwargs):
-        super(OrderForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if self.instance.pk:
             mat = self.instance.material
         else:
@@ -65,7 +63,7 @@ class OrderForm(forms.ModelForm):
             self.fields['material'].widget = forms.HiddenInput()
 
     def save(self, request):
-        super(OrderForm, self).save()
+        super().save()
         # If receive_date is set, create a movement
         if self.instance.receive_date:
             pers, _ = Person.objects.get_or_create(user=request.user,
